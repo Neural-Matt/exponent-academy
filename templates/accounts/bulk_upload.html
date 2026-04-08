@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Bulk Upload Employees – Exponent Academy{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Bulk Upload Employees</h1>
+    <p style="margin-bottom:1rem; color:#555;">
+        Upload a CSV file to create employee accounts. New accounts will require a
+        password reset on first login.
+    </p>
+    <p class="help-text" style="margin-bottom:1.2rem;">
+        Required columns: <code>staff_number</code>, <code>first_name</code>, <code>last_name</code><br>
+        Optional columns: <code>department</code>, <code>job_title</code>, <code>phone</code>
+    </p>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.csv_file.id_for_label }}">{{ form.csv_file.label }}</label>
+            {{ form.csv_file }}
+            {% if form.csv_file.help_text %}
+            <p class="help-text">{{ form.csv_file.help_text }}</p>
+            {% endif %}
+            {% if form.csv_file.errors %}
+            <ul class="errorlist">
+                {% for e in form.csv_file.errors %}<li>{{ e }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn">Upload &amp; Create Accounts</button>
+        <a href="{% url 'dashboard' %}" style="margin-left:1rem;">Cancel</a>
+    </form>
+</div>
+
+{% if results %}
+<div class="card">
+    <h2>Upload Results</h2>
+    <p style="margin-bottom:1rem;">
+        <strong>{{ results.created }}</strong> account(s) created &nbsp;|&nbsp;
+        <strong>{{ results.skipped }}</strong> skipped (already exist)
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Staff Number</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Default Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in results.details %}
+            <tr>
+                <td>{{ detail.staff_number }}</td>
+                <td>{{ detail.name|default:"–" }}</td>
+                <td>
+                    {% if detail.status == 'created' %}
+                    <span class="badge badge-success">Created</span>
+                    {% else %}
+                    <span class="badge badge-warning">Skipped</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if detail.default_password %}
+                    <code>{{ detail.default_password }}</code>
+                    <small style="color:#c0392b;">(share securely)</small>
+                    {% else %}
+                    <em>{{ detail.reason }}</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Exponent Academy{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Welcome, {{ user.get_full_name }}!</h1>
+    <p style="color:#555; margin-top:0.5rem;">
+        Staff Number: <strong>{{ user.staff_number }}</strong> &nbsp;|&nbsp;
+        Role: <strong>{{ user.get_role_display }}</strong> &nbsp;|&nbsp;
+        Department: <strong>{{ user.department|default:"–" }}</strong>
+    </p>
+</div>
+
+{% if user.role == 'HR_ADMIN' or user.is_superuser %}
+<div class="card">
+    <h2>HR Admin Tools</h2>
+    <p style="margin-bottom:1rem;">Manage employees and onboarding.</p>
+    <a href="{% url 'bulk_upload' %}" class="btn">Bulk Upload Employees (CSV)</a>
+</div>
+{% endif %}
+{% endblock %}
